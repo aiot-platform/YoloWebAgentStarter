@@ -51,6 +51,23 @@ Not included: login/RBAC, collaboration, Workflow, unattended Agent automation (
 
 ## Quick start
 
+### Start with Docker
+
+With Docker Desktop or Docker Engine (including Compose) installed, run from the repository root:
+
+```bash
+docker compose up --build
+```
+
+Open <http://127.0.0.1:8080>. The first build installs the Python and Node dependencies; subsequent starts can use `docker compose up -d`. Runtime data is persisted in the repository's `data/` directory. Stop the containers with `docker compose down`; do not remove that directory unless you intend to remove the local database, datasets, and model artifacts. The backend remains available at <http://127.0.0.1:8000> for diagnostics.
+
+The first backend build downloads large PyTorch/Ultralytics wheels and may take several minutes on a slow connection. If PyPI is slow from your network, rebuild with a mirror:
+
+```bash
+docker compose build --build-arg PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple backend
+docker compose up
+```
+
 ### Prerequisites
 
 - macOS or Linux

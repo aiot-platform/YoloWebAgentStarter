@@ -51,6 +51,23 @@ YoloWebAgent的社区版，面向本地单用户的 YOLO 数据集工作台：�
 
 ## 快速开始
 
+### Docker 一键启动
+
+已安装 Docker Desktop 或 Docker Engine（含 Compose）时，在仓库根目录执行：
+
+```bash
+docker compose up --build
+```
+
+然后打开 <http://127.0.0.1:8080>。首次构建会安装 Python/Node 依赖，之后可直接执行 `docker compose up -d` 在后台启动。运行数据会持久化到仓库的 `data/`，停止服务使用 `docker compose down`；不要删除该目录，否则会删除本地数据库、数据集和模型产物。后端调试地址仍为 <http://127.0.0.1:8000>。
+
+后端镜像首次构建需要下载较大的 PyTorch/Ultralytics 依赖，网络较慢时构建可能需要数分钟。若访问 PyPI 较慢，可使用镜像并重新构建：
+
+```bash
+docker compose build --build-arg PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple backend
+docker compose up
+```
+
 ### 依赖
 
 - macOS 或 Linux

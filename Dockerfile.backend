@@ -1,0 +1,37 @@
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DEFAULT_TIMEOUT=600 \
+    PIP_RETRIES=10
+
+WORKDIR /app
+
+# ffmpeg enables the supported video import formats in common slim images.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY backend/requirements.txt /app/backend/requirements.txt
+# Torch/Ultralytics wheels are large. A longer read timeout and retries make
+# builds resilient to slow or briefly interrupted package mirrors.
+ARG PIP_INDEX_URL
+RUN if [ -n "$PIP_INDEX_URL" ]; then \
+      pip install --index-url "$PIP_INDEX_URL" --timeout 600 --retries 10 --prefer-binary -r /app/backend/requirements.txt; \
+    else \
+      pip install --timeout 600 --retries 10 --prefer-binary -r /app/backend/requirements.txt; \
+    fi
+
+COPY backend /app/backend
+
+ENV PYTHONPATH=/app/backend \
+    YWA_DATA_DIR=/data \
+    YWA_IMPORT_ROOT=/data/imports \
+    YWA_HOST=0.0.0.0 \
+    YWA_PORT=8000
+
+VOLUME ["/data"]
+EXPOSE 8000
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
